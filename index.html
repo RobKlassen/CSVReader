@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div div{
+            display:flex;
+            flex-direction: row;
+        }
+        div div p{
+            margin:0; 
+            padding: 0 10px 0 0;
+        }
+    </style>
+</head>
+<body>
+    
+    <input type="file" id="fileSelector" accept=".csv">
+    <button class="processButton" id="processButtonProd">Sort By OrderID</button>
+    <button class="processButton" id="processButtonOrder">Sort By Product</button>
+    <button class="processButton" id="processButtonQty">Sort By Qty</button>
+    <div class="output"></div>
+
+</body>
+<script>
+
+    
+    const processFileButton = document.querySelectorAll('.processButton');
+    
+    // const processFileButton = document.getElementById('processButton');
+    const CSVReader = new FileReader();
+    let CSVArray = [];
+
+    const makeInteger = function(strToInt, index){
+        if (index === 1){
+            return strToInt;
+        } else {
+            return parseInt(strToInt);
+        }
+    }
+
+    const convertCSVToArr = function(CSVstring, splitCharacter=";"){
+        
+        const newArr = CSVstring.split("\r\n");
+        newArr.forEach(item => {
+            let subArr = item.split(";");
+            subArr.forEach(value => {
+                valIndex = subArr.indexOf(value);
+                subArr[valIndex] = makeInteger(value, valIndex);
+            });
+            if (subArr.length === 3){
+                CSVArray.push(subArr);
+            }
+        });
+    }
+
+    for (i=0; i<processFileButton.length; i++){
+        processFileButton[i].buttonMode = i;
+        processFileButton[i].addEventListener('click', function(){
+            const myCSVFile = document.getElementById('fileSelector');
+            const selectedCSV = myCSVFile.files;
+            const mode = this.buttonMode;
+            for (file of selectedCSV){
+                CSVReader.readAsText(file);
+            }
+
+            CSVReader.addEventListener('load', function(e){
+                const CSVResultString = e.target.result;
+                convertCSVToArr(CSVResultString); 
+                loadValues(mode);
+            });
+        });
+        
+    }
+
+    
+
+    const printValues = function(arrayToPrint, valueCount){
+        let rowCount = 1;
+        const myOutputEl = document.querySelector('.output');
+        myOutputEl.innerHTML = "";
+
+        let startingCount = 0;
+        let tallyBreakpoint = 100;
+
+        const printCurrentCount = function(){
+            if (tallyBreakpoint >= arrayToPrint.length){
+                tallyBreakpoint = arrayToPrint.length;
+            }
+
+            for (j = startingCount; j < tallyBreakpoint; j++){
+                const newRowEl = document.createElement('div');
+                myOutputEl.append(newRowEl);
+                for (i=-1; i< valueCount; i++){
+                    const column = document.createElement('p');
+                    column.classList.add('column' + i);
+                    if (i === -1){
+                        column.innerText = "row number: " + rowCount;
+                    } else {
+                        column.innerText = arrayToPrint[j][i];
+                    }
+                    newRowEl.append(column);
+                }
+                rowCount++;
+            }
+        }
+        if (startingCount == 0){
+            printCurrentCount();
+        }
+
+        const addMoreButton = document.createElement('button');
+        addMoreButton.innerText = "show 100 more rows";
+        addMoreButton.addEventListener('click', function(){
+            startingCount = tallyBreakpoint + 1;
+            tallyBreakpoint = tallyBreakpoint + 100;
+            printCurrentCount();
+            myOutputEl.append(addMoreButton);
+        });
+        myOutputEl.append(addMoreButton);
+    }
+
+    const loadValues = function(indexNum){
+
+        let CSVSortedArr = CSVArray.slice();
+        let CSVCondensed = [];
+
+        if (indexNum === 1){
+            CSVSortedArr.forEach(listItem =>{
+                listItem[3] = parseInt(listItem[1].replace("Product_", ""), 10);
+                indexNum = 3;
+            });
+        
+            CSVSortedArr.sort(function(a,b){
+                return a[indexNum] - b[indexNum];
+            });
+
+            let currentProductID = 0;
+            let ongoingSum = 0;
+
+            CSVSortedArr.forEach(sortedListItem =>{
+                const productID = sortedListItem[3];
+                const productCount = sortedListItem[2];
+                console.log(productID);
+
+                if (productID === currentProductID){
+                    ongoingSum = ongoingSum + productCount;
+                } else {
+                    CSVCondensed.push([currentProductID, ongoingSum]);
+                    ongoingSum = productCount;
+                    currentProductID = productID;
+                }
+            });
+
+            CSVCondensed.sort(function(a,b){
+                return b[1] - a[1];
+            });
+            CSVCondensed.forEach(listItem =>{
+                const zeroStrCount = 5 - (String(listItem[0]).length)
+                let zeroChar = "";
+                for(i=0; i<zeroStrCount; i++){
+                    zeroChar = zeroChar + "0";
+                }
+                listItem[0] = "Product_" + zeroChar + listItem[0]; 
+            });
+            printValues(CSVCondensed, 2);
+        } else {
+            CSVSortedArr.sort(function(a,b){
+                return a[indexNum] - b[indexNum];
+            });
+            printValues(CSVSortedArr, 3);
+        }
+    }
+    
+    
+
+</script>
+</html>
