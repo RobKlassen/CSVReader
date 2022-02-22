@@ -1,0 +1,160 @@
+*{
+    margin:0;
+    padding:0;
+}
+body{
+    background-color: white;
+}
+
+header{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    height:100px;
+} 
+h1{
+    color: rgb(255, 208, 0);
+    text-align: center;
+}
+
+main{
+    background-color: rgb(146, 164, 243);
+    min-height:100vh;
+}
+.wrapper{
+    width:80%;
+    margin:0 auto;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.inputContainer{
+    display:flex;
+    flex-direction: row;
+    width:100%;
+    justify-content: center;
+    align-items: center;
+    padding:25px;
+    margin:25px;
+    background-color: white;
+}
+
+.inputContainer h2{
+    margin-right:25px;
+}
+
+.fileLoader::file-selector-button,
+.processButton,
+.showMoreButton{
+    background-color: rgb(146, 164, 243);
+    border:solid 2px rgb(77, 77, 77);
+    border-radius: 5px;
+}
+
+.fileLoader::file-selector-button:hover,
+.processButton:hover,
+.showMoreButton:hover{
+    background-color: rgb(255, 208, 0);
+    border: solid 2px black;
+}
+.fileLoader::file-selector-button:active,
+.processButton:active,
+.showMoreButton:active{
+    background-color: black;
+    color:white;
+}
+
+.options{
+    margin-bottom:25px;
+    padding:25px;
+    width:100%;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /* background-color: white; */
+    background-color: rgb(146, 164, 243);
+}
+
+.processButton{
+    width:25%;
+    height:50px;
+}
+
+.processButtonInvis{
+    display:none;
+}
+
+#downloadABC{
+    border:solid 2px black;
+    background-color: rgb(109, 255, 109);
+    font-weight: 700;
+}
+
+#downloadABC:hover{
+    border:solid 2px red;
+    background-color: rgb(255, 208, 0);
+}
+
+#downloadABC:active{
+    background-color: black;
+    color:white;
+}
+
+.headerRow p{
+    font-weight: 700;
+    color:red;
+}
+
+.output{
+    width:100%;
+    padding:25px;
+    margin-bottom: 50px;
+    background-color: rgb(146, 164, 243);
+    /* background-color: white; */
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.output .outputRow{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.output .outputRowOdd{
+    background-color: rgb(204, 204, 204);
+}
+
+.output .outputRowEven{
+    background-color: rgb(235, 44, 44);
+    background-color: white;
+}
+
+.output .outputRow .outputColumn{
+    width:100%;
+    text-align: center;
+}
+
+.showMoreButton{
+    width:25%;
+    height:50px;
+    margin-top: 20px;
+    align-self: center;
+    justify-self: center;
+}
+
+footer{
+    width:100%;
+    position: fixed;
+    bottom:0;
+    background-color: black;
+}
+
+footer p{
+    color: rgb(255, 208, 0);
+    text-align: center;
+}
