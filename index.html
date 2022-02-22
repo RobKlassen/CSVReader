@@ -174,7 +174,7 @@
                 <div class="inputContainer">
                     <h2>Load the CSV Here:</h2>
                     <input type="file" id="fileSelector" accept=".csv" class="fileLoader">
-                    <button id="downloadABC">Download ABC.csv</button>
+                    <button id="downloadABC" class="processButton processButtonInvis">Download ABC.csv</button>
                 </div>
             </div>
         </section>
@@ -307,13 +307,15 @@
     }
 
     csvApp.loadValues = function(indexNum, originalCSVArray){
+
+        console.log("tripped");
         
         let CSVSortedArr = originalCSVArray.slice();
         let CSVCondensed = [];
         let downloadBreakpoint = false;
 
-        if (indexNum === 1 || indexNum === 4){
-            if (indexNum === 4){
+        if (indexNum === 0 || indexNum === 2){
+            if (indexNum === 0){
                 downloadBreakpoint = true;
             } else {
                 downloadBreakpoint = false;
@@ -398,47 +400,34 @@
             if (myCSVFile.files[0].type === "text/csv"){
                 myCSVFile.style["background-color"] = "rgb(73, 218, 92)";
                 for (i=0; i<processFileButton.length; i++){
+
+                    console.log(processFileButton[i]);
+                    
+                    
                     processFileButton[i].classList.remove("processButtonInvis");
                     processFileButton[i].buttonMode = i;
                     processFileButton[i].addEventListener('click', function(){
                         const mode = this.buttonMode;
 
-
+                        for (file of selectedCSV){
+                            CSVReader.readAsText(file);
+                        }
                         CSVReader.addEventListener('load', function(e){
                             const CSVResultString = e.target.result;
                             let CSVArray = csvApp.convertCSVToArr(CSVResultString); 
-                            csvApp.loadValues(mode, CSVArray);
+                            // console.log(mode);
+                            if (mode === 0){
+                                const sortedArrayToDownload = csvApp.loadValues(0, CSVArray);
+                                csvApp.downloadCSV(sortedArrayToDownload);
+                            } else {
+                                csvApp.loadValues(mode, CSVArray);
+                            }
                         });
                     });
                 }
             } else {
                 myCSVFile.style["background-color"] = "rgb(235, 44, 44)";
             }
-
-
-
-
-
-
-
-
-            const downloadButton = document.getElementById('downloadABC');
-            downloadButton.addEventListener('click', function(){
-                for (file of selectedCSV){
-                    CSVReader.readAsText(file);
-                }
-                CSVReader.addEventListener('load', function(e){
-                    const CSVResultString = e.target.result;
-                    let CSVArray = csvApp.convertCSVToArr(CSVResultString); 
-                    const sortedArrayToDownload = csvApp.loadValues(4, CSVArray);
-                    csvApp.downloadCSV(sortedArrayToDownload);
-                });
-            });
-
-
-
-
-
         }
     }
 
