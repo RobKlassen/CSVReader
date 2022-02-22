@@ -200,6 +200,7 @@ csvApp.sortValues = function(mode, originalCSVArray){
                     // then go through the array of product IDs using a forEach method on CSVSortedArr, 
                     //
                     // - using the currentProductID and ongoingSum we look at the similar values, and add the count (denoted as productCount as a scoped variable for simplicity in the forEach), until it detects that the next product id IS NOT the same product id
+                        // MUST set the starting value of currentProductID as the first value in the sorted array, or it creates a ghost "0,0" item 
                     // - at this point it pushes that product id (currentProductID) and the current tally (ongoingSum) into the new array of values (CSVCondensed), then resets the two variables with the next id/qty to be compared to following values
                     // - this works because it is CERTAIN the product id's are ordered  
                     // 
@@ -228,7 +229,7 @@ csvApp.sortValues = function(mode, originalCSVArray){
             return a[3] - b[3];
         });
 
-        let currentProductID = 0;
+        let currentProductID = CSVSortedArr[0][3];
         let ongoingSum = 0;
 
         CSVSortedArr.forEach(sortedListItem =>{
