@@ -7,11 +7,32 @@
     <title>CSV Loader</title>
 
     <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        body{
+            background-color: white;
+        }
+        /* ============= */
+        /* ============= */
         header{
-            
+            display:flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            height:100px;
         } 
         h1{
+            color: rgb(255, 208, 0);
             text-align: center;
+        }
+        /* ============= */
+        /* ============= */
+        main{
+            background-color: rgb(146, 164, 243);
+            min-height:100vh;
         }
         .wrapper{
             width:80%;
@@ -27,22 +48,73 @@
             width:100%;
             justify-content: center;
             align-items: center;
+            padding:25px;
+            margin:25px;
+            background-color: white;
         }
 
         .inputContainer h2{
-            width:25%;
+            margin-right:25px;
+            /* width:25%; */
         }
 
-        .inputContainer input{
+        .fileLoader::file-selector-button,
+        .processButton,
+        .showMoreButton{
+            background-color: rgb(146, 164, 243);
+            border:solid 2px rgb(77, 77, 77);
+            border-radius: 5px;
+        }
+
+        .fileLoader::file-selector-button:hover,
+        .processButton:hover,
+        .showMoreButton:hover{
+            background-color: rgb(255, 208, 0);
+            border: solid 2px black;
+        }
+        .fileLoader::file-selector-button:active,
+        .processButton:active,
+        .showMoreButton:active{
+            background-color: black;
+            color:white;
+        }
+
+        .options{
+            margin-bottom:25px;
+            padding:25px;
+            width:100%;
+            display:flex;
+            flex-direction: row;
+            justify-content: space-between;
+            background-color: white;
+        }
+
+        .processButton{
             width:25%;
+            height:50px;
         }
 
         .processButtonInvis{
             display:none;
         }
 
+        .headerRow{
+            /* color:red; */
+        }
+
+        .headerRow p{
+            font-weight: 700;
+            color:red;
+        }
+
         .output{
-            width:75%;
+            width:100%;
+            padding:25px;
+            margin-bottom: 50px;
+            background-color: white;
+            display:flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .output .outputRow{
@@ -52,14 +124,40 @@
         }
 
         .output .outputRowOdd{
-            background-color: grey;
+            background-color: rgb(204, 204, 204);
         }
         .output .outputRowEven{
+            background-color: rgb(235, 44, 44);
             background-color: white;
         }
         
         .output .outputRow .outputColumn{
-            background-color: orange;
+            width:100%;
+            text-align: center;
+            /* background-color: orange; */
+        }
+
+        .showMoreButton{
+            width:25%;
+            height:50px;
+            margin-top: 20px;
+            align-self: center;
+            justify-self: center;
+        }
+
+
+
+        /* ============= */
+        /* ============= */
+        footer{
+            width:100%;
+            position: fixed;
+            bottom:0;
+            background-color: black;
+        }
+        footer p{
+            color: rgb(255, 208, 0);
+            text-align: center;
         }
 
     </style>
@@ -76,6 +174,7 @@
                 <div class="inputContainer">
                     <h2>Load the CSV Here:</h2>
                     <input type="file" id="fileSelector" accept=".csv" class="fileLoader">
+                    <button id="downloadABC">Download ABC.csv</button>
                 </div>
             </div>
         </section>
@@ -98,9 +197,6 @@
     <footer>
         <p>Coded by Rob Klassen - Feb 21 2022</p>
     </footer>
-
-    <div class="output"></div>
-
 </body>
 <script>
 
@@ -139,7 +235,7 @@
         // =======HEADER ROW
         // ===========================
         const headerRow = document.createElement('div')
-        headerRow.classList.add("outputRow", "outputRowEven"); //because zero is an even number, haha.....
+        headerRow.classList.add("outputRow", "outputRowEven", "headerRow"); //because zero is an even number, haha.....
         const headerColumns = [];
 
         for (k = 0; k <= valueCount; k++){
@@ -186,7 +282,7 @@
                     const column = document.createElement('p');
                     column.classList.add('outputColumn');
                     if (i === -1){
-                        column.innerText = "row number: " + rowCount;
+                        column.innerText = rowCount;
                     } else {
                         column.innerText = arrayToPrint[j][i];
                     }
@@ -200,8 +296,9 @@
         }
 
         addMoreButton.innerText = "show 100 more rows";
+        addMoreButton.classList.add("showMoreButton")
         addMoreButton.addEventListener('click', function(){
-            startingCount = tallyBreakpoint + 1;
+            startingCount = tallyBreakpoint;
             tallyBreakpoint = tallyBreakpoint + 100;
             printCurrentCount();
             myOutputEl.append(addMoreButton);
@@ -213,8 +310,14 @@
         
         let CSVSortedArr = originalCSVArray.slice();
         let CSVCondensed = [];
+        let downloadBreakpoint = false;
 
-        if (indexNum === 1){
+        if (indexNum === 1 || indexNum === 4){
+            if (indexNum === 4){
+                downloadBreakpoint = true;
+            } else {
+                downloadBreakpoint = false;
+            }
             CSVSortedArr.forEach(listItem =>{
                 listItem[3] = parseInt(listItem[1].replace("Product_", ""), 10);
                 indexNum = 3;
@@ -251,15 +354,39 @@
                 }
                 listItem[0] = "Product_" + zeroChar + listItem[0]; 
             });
-            csvApp.printValues(CSVCondensed, 2);
+            if (downloadBreakpoint == false){
+                csvApp.printValues(CSVCondensed, 2);
+            } else if (downloadBreakpoint == true){
+                return CSVCondensed;
+            } else {
+                console.log("hard error");
+            }
         } else {
             CSVSortedArr.sort(function(a,b){
-                return a[indexNum] - b[indexNum];
+                return b[indexNum] - a[indexNum];
             });
             csvApp.printValues(CSVSortedArr, 3);
         }
     }
 
+    csvApp.downloadCSV = function(arrToDL){
+        let infoToPush = [];
+
+        arrToDL.forEach(listItem =>{
+            listItem[0] = `"${listItem[0]}"`;
+            infoToPush = infoToPush + listItem.join(";") + "\n";
+        });
+
+        let csvData = new Blob([infoToPush], {type: 'text/csv' });
+        let csvUrl = URL.createObjectURL(csvData);
+
+        let downloadLink = document.createElement('a'); //creates targetable element
+        downloadLink.href = csvUrl;                     //link to the 'url' of the 'blob' holding the information
+        downloadLink.target = '_blank';                 //opens new window
+        downloadLink.download = "ABC" + ".csv";         //file name
+        downloadLink.click();                           //clicks that target element automatically to trigger it
+
+    }
 
     csvApp.buildGUI = function(){
         const processFileButton = document.querySelectorAll('.processButton');
@@ -267,24 +394,51 @@
         const CSVReader = new FileReader();
 
         myCSVFile.onchange = function(e){
-            for (i=0; i<processFileButton.length; i++){
-                processFileButton[i].classList.remove("processButtonInvis");
-                processFileButton[i].buttonMode = i;
-                processFileButton[i].addEventListener('click', function(){
-                    // const myCSVFile = document.getElementById('fileSelector');
-                    const selectedCSV = myCSVFile.files;
-                    const mode = this.buttonMode;
-                    for (file of selectedCSV){
-                        CSVReader.readAsText(file);
-                    }
+            const selectedCSV = myCSVFile.files;
+            if (myCSVFile.files[0].type === "text/csv"){
+                myCSVFile.style["background-color"] = "rgb(73, 218, 92)";
+                for (i=0; i<processFileButton.length; i++){
+                    processFileButton[i].classList.remove("processButtonInvis");
+                    processFileButton[i].buttonMode = i;
+                    processFileButton[i].addEventListener('click', function(){
+                        const mode = this.buttonMode;
 
-                    CSVReader.addEventListener('load', function(e){
-                        const CSVResultString = e.target.result;
-                        let CSVArray = csvApp.convertCSVToArr(CSVResultString); 
-                        csvApp.loadValues(mode, CSVArray);
+
+                        CSVReader.addEventListener('load', function(e){
+                            const CSVResultString = e.target.result;
+                            let CSVArray = csvApp.convertCSVToArr(CSVResultString); 
+                            csvApp.loadValues(mode, CSVArray);
+                        });
                     });
-                });
+                }
+            } else {
+                myCSVFile.style["background-color"] = "rgb(235, 44, 44)";
             }
+
+
+
+
+
+
+
+
+            const downloadButton = document.getElementById('downloadABC');
+            downloadButton.addEventListener('click', function(){
+                for (file of selectedCSV){
+                    CSVReader.readAsText(file);
+                }
+                CSVReader.addEventListener('load', function(e){
+                    const CSVResultString = e.target.result;
+                    let CSVArray = csvApp.convertCSVToArr(CSVResultString); 
+                    const sortedArrayToDownload = csvApp.loadValues(4, CSVArray);
+                    csvApp.downloadCSV(sortedArrayToDownload);
+                });
+            });
+
+
+
+
+
         }
     }
 
