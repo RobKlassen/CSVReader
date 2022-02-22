@@ -306,27 +306,18 @@
         myOutputEl.append(addMoreButton);
     }
 
-    csvApp.loadValues = function(indexNum, originalCSVArray){
-
-        console.log("tripped");
-        
+    csvApp.loadValues = function(mode, originalCSVArray){
         let CSVSortedArr = originalCSVArray.slice();
         let CSVCondensed = [];
-        let downloadBreakpoint = false;
 
-        if (indexNum === 0 || indexNum === 2){
-            if (indexNum === 0){
-                downloadBreakpoint = true;
-            } else {
-                downloadBreakpoint = false;
-            }
+        if (mode === 0 || mode === 2){
             CSVSortedArr.forEach(listItem =>{
                 listItem[3] = parseInt(listItem[1].replace("Product_", ""), 10);
-                indexNum = 3;
+                mode = 3;
             });
         
             CSVSortedArr.sort(function(a,b){
-                return a[indexNum] - b[indexNum];
+                return a[mode] - b[mode];
             });
 
             let currentProductID = 0;
@@ -356,18 +347,16 @@
                 }
                 listItem[0] = "Product_" + zeroChar + listItem[0]; 
             });
-            if (downloadBreakpoint == false){
-                csvApp.printValues(CSVCondensed, 2);
-            } else if (downloadBreakpoint == true){
-                return CSVCondensed;
-            } else {
-                console.log("hard error");
-            }
+            return CSVCondensed;
         } else {
             CSVSortedArr.sort(function(a,b){
-                return b[indexNum] - a[indexNum];
+                if (mode == 1){
+                    return b[0] - a[0];
+                } else if (mode == 3){
+                    return b[2] - a[2];
+                }
             });
-            csvApp.printValues(CSVSortedArr, 3);
+            return CSVSortedArr;
         }
     }
 
@@ -400,9 +389,7 @@
             if (myCSVFile.files[0].type === "text/csv"){
                 myCSVFile.style["background-color"] = "rgb(73, 218, 92)";
                 for (i=0; i<processFileButton.length; i++){
-
-                    console.log(processFileButton[i]);
-                    
+               
                     
                     processFileButton[i].classList.remove("processButtonInvis");
                     processFileButton[i].buttonMode = i;
@@ -415,12 +402,18 @@
                         CSVReader.addEventListener('load', function(e){
                             const CSVResultString = e.target.result;
                             let CSVArray = csvApp.convertCSVToArr(CSVResultString); 
-                            // console.log(mode);
-                            if (mode === 0){
-                                const sortedArrayToDownload = csvApp.loadValues(0, CSVArray);
-                                csvApp.downloadCSV(sortedArrayToDownload);
+
+
+
+                            const sortedArray = csvApp.loadValues(mode, CSVArray);
+                            let printMethod = 0;
+                            if (mode == 0){  
+                                csvApp.downloadCSV(sortedArray);
                             } else {
-                                csvApp.loadValues(mode, CSVArray);
+                                if (mode == 1) { printMethod = 3 }
+                                if (mode == 2) { printMethod = 2 }
+                                if (mode == 3) { printMethod = 3 }
+                                csvApp.printValues(sortedArray, printMethod);
                             }
                         });
                     });
